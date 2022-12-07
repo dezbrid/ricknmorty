@@ -1,13 +1,22 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, SetStateAction, Dispatch} from 'react';
 import {View, Image, TextInput, TouchableOpacity} from 'react-native';
+import useDebounce from '@hooks/useDebounce';
+import {mediumGray} from '@constants/colors';
 
 import iconSerch from './assets/ic_search.png';
 import clearIcon from './assets/ic_close.png';
 import styles from './styles';
-import {mediumGray} from '@constants/colors';
 
-function BarSearch() {
+interface Props {
+  findByName: Dispatch<SetStateAction<string>>;
+}
+
+function BarSearch({findByName}: Props) {
   const [search, setSearch] = useState<string>('');
+  const debouncesSearch = useDebounce(search, 500);
+  useEffect(() => {
+    findByName(debouncesSearch);
+  }, [debouncesSearch, findByName]);
 
   const handlePressClearSearch = () => {
     setSearch('');
@@ -27,7 +36,7 @@ function BarSearch() {
           autoComplete="off"
           autoCorrect={false}
           style={styles.inputStyle}
-          placeholder={'Buscar'}
+          placeholder={'Buscar por nombre'}
           placeholderTextColor={mediumGray}
           onChangeText={handleChangeText}
           value={search}
