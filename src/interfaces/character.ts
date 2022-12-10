@@ -31,3 +31,6 @@ export interface RequestCharacter {
   info: Info;
   results: Character[];
 }
+export interface RequestCharacterOptions extends RequestCharacter {
+  push?: boolean;
+}

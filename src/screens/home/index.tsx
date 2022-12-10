@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -8,46 +8,27 @@ import {
   SafeAreaView,
   StatusBar,
 } from 'react-native';
-import {Character, RequestCharacter} from '@interfaces/character';
-import {ListKeyExtractor, Nullable} from '@interfaces/generic';
+import {Character} from '@interfaces/character';
+import {ListKeyExtractor} from '@interfaces/generic';
+import {
+  requestCharacterAsync,
+  characterList,
+  listLoading,
+} from '@redux/characterSlice';
+import {useAppDispatch, useAppSelector} from '@hooks/redux';
 
 import styles from './styles';
 import BarSearch from './components/BarSearch';
 import CharacterCard from './components/CharacterCard';
 
-const INITIAL_URL: string = 'https://rickandmortyapi.com/api/character';
-
 function Home() {
-  const [characters, setCharacters] = useState<Character[]>([]);
-  const [characterName, setCharacterName] = useState<string>('');
+  const characters = useAppSelector(characterList);
+  const loading = useAppSelector(listLoading);
+  const dispatch = useAppDispatch();
 
-  const [url, setUrl] = useState<Nullable<string>>('');
-  const [loading, setLoading] = useState<Boolean>(false);
-
-  const requestCharacterApi = async (currenturl: string, push: boolean) => {
-    setLoading(true);
-    const response = await fetch(`${currenturl}`, {method: 'GET'});
-    if (response.ok) {
-      const data: RequestCharacter = await response.json();
-      setUrl(data.info.next);
-      if (push) {
-        setCharacters(array => [...array, ...data.results]);
-      } else {
-        setCharacters(data.results);
-      }
-    }
-    setLoading(false);
-  };
   useEffect(() => {
-    requestCharacterApi(INITIAL_URL, false);
-  }, []);
-  useEffect(() => {
-    if (characterName.length > 0) {
-      requestCharacterApi(`${INITIAL_URL}/?name=${characterName}`, false);
-    } else {
-      requestCharacterApi(INITIAL_URL, false);
-    }
-  }, [characterName]);
+    dispatch(requestCharacterAsync({}));
+  }, [dispatch]);
 
   const renderItem: ListRenderItem<Character> = ({item}) => (
     <CharacterCard {...item} />
@@ -59,9 +40,7 @@ function Home() {
     <Text style={styles.text}>no hay resultado </Text>
   );
   const handleMoresCharacters = () => {
-    if (url) {
-      requestCharacterApi(url, true);
-    }
+    dispatch(requestCharacterAsync({next: true}));
   };
   const footerComponent = () => {
     if (loading) {
@@ -73,7 +52,7 @@ function Home() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar />
-      <BarSearch findByName={setCharacterName} />
+      <BarSearch />
       <FlatList<Character>
         data={characters}
         renderItem={renderItem}

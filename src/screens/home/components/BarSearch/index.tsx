@@ -1,22 +1,21 @@
-import React, {useState, useEffect, SetStateAction, Dispatch} from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, Image, TextInput, TouchableOpacity} from 'react-native';
 import useDebounce from '@hooks/useDebounce';
 import {mediumGray} from '@constants/colors';
+import {requestCharacterAsync} from '@redux/characterSlice';
+import {useAppDispatch} from '@hooks/redux';
 
 import iconSerch from './assets/ic_search.png';
 import clearIcon from './assets/ic_close.png';
 import styles from './styles';
 
-interface Props {
-  findByName: Dispatch<SetStateAction<string>>;
-}
-
-function BarSearch({findByName}: Props) {
+function BarSearch() {
   const [search, setSearch] = useState<string>('');
+  const dispatch = useAppDispatch();
   const debouncesSearch = useDebounce(search, 500);
   useEffect(() => {
-    findByName(debouncesSearch);
-  }, [debouncesSearch, findByName]);
+    dispatch(requestCharacterAsync({name: debouncesSearch.trim()}));
+  }, [debouncesSearch, dispatch]);
 
   const handlePressClearSearch = () => {
     setSearch('');
