@@ -13,7 +13,7 @@ export default StyleSheet.create({
     height: 15,
   },
   text: {
-    color: 'black',
+    color: 'white',
   },
   footer: {
     margin: 50,

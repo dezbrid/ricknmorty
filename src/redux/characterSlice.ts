@@ -7,6 +7,7 @@ export interface CharacterState {
   characterList: Character[];
   nextPage: Nullable<string>;
   loading: boolean;
+  errorMsg: unknown | string;
 }
 const INITIAL_URL: string = 'https://rickandmortyapi.com/api/character';
 interface ArgCharacter {
@@ -19,7 +20,7 @@ export const requestCharacterAsync = createAsyncThunk<
   {state: RootState}
 >(
   'character/requestCharacterAsync',
-  async ({name = null, next = false}, {getState}) => {
+  async ({name = null, next = false}, {getState, rejectWithValue}) => {
     const {
       characters: {nextPage},
     } = getState();
@@ -31,15 +32,31 @@ export const requestCharacterAsync = createAsyncThunk<
     } else {
       currentUrl = INITIAL_URL;
     }
+
     const response = await fetch(`${currentUrl}`, {method: 'GET'});
     const data = await response.json();
-    return {...data, push: next} as RequestCharacterOptions;
+    if (response.ok) {
+      return {...data, push: next} as RequestCharacterOptions;
+    } else {
+      return rejectWithValue(data.error);
+    }
+  },
+  {
+    condition: (argCharacter, {getState}) => {
+      const {
+        characters: {nextPage},
+      } = getState();
+      if (argCharacter.next && nextPage == null) {
+        return false;
+      }
+    },
   },
 );
 const initialState: CharacterState = {
   characterList: [],
   loading: false,
   nextPage: '',
+  errorMsg: '',
 };
 export const characterSlice = createSlice({
   name: 'characters',
@@ -57,8 +74,10 @@ export const characterSlice = createSlice({
           ? [...state.characterList, ...action.payload.results]
           : action.payload.results;
       })
-      .addCase(requestCharacterAsync.rejected, state => {
+      .addCase(requestCharacterAsync.rejected, (state, action) => {
         state.loading = false;
+        state.characterList = [];
+        state.errorMsg = action.payload;
       });
   },
 });
@@ -66,5 +85,5 @@ export const characterSlice = createSlice({
 export const characterList = (state: RootState) =>
   state.characters.characterList;
 export const listLoading = (state: RootState) => state.characters.loading;
-
+export const errorMessage = (state: RootState) => state.characters.errorMsg;
 export default characterSlice.reducer;

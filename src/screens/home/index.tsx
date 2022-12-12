@@ -14,6 +14,7 @@ import {
   requestCharacterAsync,
   characterList,
   listLoading,
+  errorMessage,
 } from '@redux/characterSlice';
 import {useAppDispatch, useAppSelector} from '@hooks/redux';
 
@@ -24,6 +25,7 @@ import CharacterCard from './components/CharacterCard';
 function Home() {
   const characters = useAppSelector(characterList);
   const loading = useAppSelector(listLoading);
+  const errorRequest = useAppSelector(errorMessage);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -36,9 +38,7 @@ function Home() {
   const keyExtractor: ListKeyExtractor<Character> = (_, i) => i.toString();
   const separator = () => <View style={styles.separator} />;
 
-  const emptyComponent = () => (
-    <Text style={styles.text}>no hay resultado </Text>
-  );
+  const emptyComponent = () => <Text style={styles.text}>{errorRequest} </Text>;
   const handleMoresCharacters = () => {
     dispatch(requestCharacterAsync({next: true}));
   };
