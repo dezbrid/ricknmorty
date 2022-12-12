@@ -7,9 +7,9 @@ export interface CharacterState {
   characterList: Character[];
   nextPage: Nullable<string>;
   loading: boolean;
-  errorMsg: unknown | string;
+  errorMsg: string;
 }
-const INITIAL_URL: string = 'https://rickandmortyapi.com/api/character';
+
 interface ArgCharacter {
   name?: Nullable<string>;
   next?: boolean;
@@ -17,10 +17,10 @@ interface ArgCharacter {
 export const requestCharacterAsync = createAsyncThunk<
   RequestCharacterOptions,
   ArgCharacter,
-  {state: RootState}
+  {state: RootState; rejectValue: string; extra: {url: string}}
 >(
   'character/requestCharacterAsync',
-  async ({name = null, next = false}, {getState, rejectWithValue}) => {
+  async ({name = null, next = false}, {getState, rejectWithValue, extra}) => {
     const {
       characters: {nextPage},
     } = getState();
@@ -28,11 +28,10 @@ export const requestCharacterAsync = createAsyncThunk<
     if (next) {
       currentUrl = nextPage!;
     } else if (name) {
-      currentUrl = `${INITIAL_URL}/?name=${name}`;
+      currentUrl = `${extra.url}/?name=${name}`;
     } else {
-      currentUrl = INITIAL_URL;
+      currentUrl = extra.url;
     }
-
     const response = await fetch(`${currentUrl}`, {method: 'GET'});
     const data = await response.json();
     if (response.ok) {
@@ -77,7 +76,7 @@ export const characterSlice = createSlice({
       .addCase(requestCharacterAsync.rejected, (state, action) => {
         state.loading = false;
         state.characterList = [];
-        state.errorMsg = action.payload;
+        state.errorMsg = action.payload!;
       });
   },
 });
