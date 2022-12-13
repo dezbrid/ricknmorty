@@ -6,6 +6,7 @@ import {
 } from '@reduxjs/toolkit';
 import ReactotronConfig from '@config/reactotronConfig';
 import characterSlice from '@redux/characterSlice';
+import {characterApi} from '@services/character';
 
 const enhancers: StoreEnhancer[] = [];
 if (ReactotronConfig.createEnhancer) {
@@ -15,9 +16,12 @@ const INITIAL_URL: string = 'https://rickandmortyapi.com/api/character';
 export const store = configureStore({
   reducer: {
     characters: characterSlice,
+    [characterApi.reducerPath]: characterApi.reducer, // only use in RTK
   },
   middleware: getDefaultMiddleware =>
-    getDefaultMiddleware({thunk: {extraArgument: {url: INITIAL_URL}}}),
+    getDefaultMiddleware({thunk: {extraArgument: {url: INITIAL_URL}}}).concat(
+      characterApi.middleware, // .concat only use in RKT
+    ),
   enhancers,
 });
 

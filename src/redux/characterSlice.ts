@@ -1,4 +1,4 @@
-import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+import {createSlice, createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import {RootState} from '@redux/store';
 import {Character, RequestCharacterOptions} from '@interfaces/character';
 import {Nullable} from '@interfaces/generic';
@@ -8,6 +8,7 @@ export interface CharacterState {
   nextPage: Nullable<string>;
   loading: boolean;
   errorMsg: string;
+  characterName: string;
 }
 
 interface ArgCharacter {
@@ -56,11 +57,16 @@ const initialState: CharacterState = {
   loading: false,
   nextPage: '',
   errorMsg: '',
+  characterName: '',
 };
 export const characterSlice = createSlice({
   name: 'characters',
   initialState,
-  reducers: {},
+  reducers: {
+    setCharacterName: (state, action: PayloadAction<string>) => {
+      state.characterName = action.payload;
+    },
+  },
   extraReducers: builder => {
     builder
       .addCase(requestCharacterAsync.pending, state => {
@@ -81,6 +87,9 @@ export const characterSlice = createSlice({
   },
 });
 
+export const {setCharacterName} = characterSlice.actions;
+export const characterName = (state: RootState) =>
+  state.characters.characterName;
 export const characterList = (state: RootState) =>
   state.characters.characterList;
 export const listLoading = (state: RootState) => state.characters.loading;

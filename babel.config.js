@@ -22,6 +22,7 @@ module.exports = {
           '@constants': './src/constants',
           '@redux': './src/redux',
           '@hooks': './src/hooks',
+          '@services': './src/services',
         },
       },
     ],

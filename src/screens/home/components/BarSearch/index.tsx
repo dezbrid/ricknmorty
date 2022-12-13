@@ -2,7 +2,9 @@ import React, {useState, useEffect} from 'react';
 import {View, Image, TextInput, TouchableOpacity} from 'react-native';
 import useDebounce from '@hooks/useDebounce';
 import {mediumGray} from '@constants/colors';
-import {requestCharacterAsync} from '@redux/characterSlice';
+import {
+  /*requestCharacterAsync,*/ setCharacterName,
+} from '@redux/characterSlice';
 import {useAppDispatch} from '@hooks/redux';
 
 import iconSerch from './assets/ic_search.png';
@@ -14,7 +16,8 @@ function BarSearch() {
   const dispatch = useAppDispatch();
   const debouncesSearch = useDebounce(search, 500);
   useEffect(() => {
-    dispatch(requestCharacterAsync({name: debouncesSearch.trim()}));
+    //dispatch(requestCharacterAsync({name: debouncesSearch.trim()})); //createAsyncThunk
+    dispatch(setCharacterName(debouncesSearch.trim()));
   }, [debouncesSearch, dispatch]);
 
   const handlePressClearSearch = () => {
