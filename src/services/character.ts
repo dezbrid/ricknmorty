@@ -7,7 +7,6 @@ interface RequestCharacterByName {
 export const characterApi = createApi({
   reducerPath: 'characterApi',
   baseQuery: fetchBaseQuery({baseUrl: 'https://rickandmortyapi.com/api/'}),
-  tagTypes: ['Posts'],
   endpoints: builder => ({
     getCharacterByName: builder.query<RequestCharacter, RequestCharacterByName>(
       {
